@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('GET /api/users error:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch users' },
+      { success: false, error: 'ไม่สามารถดึงข้อมูลผู้ใช้ได้' },
       { status: 500 }
     )
   }
@@ -52,19 +52,42 @@ export async function POST(request: Request) {
     // Validate
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Email and password are required' },
+        { success: false, error: 'อีเมลและรหัสผ่านเป็นข้อมูลที่จำเป็น' },
         { status: 400 }
       )
     }
 
-    // ตรวจสอบว่า email ซ้ำไหม
+    // ตรวจสอบว่า email ซ้ำมั้ย
     const existingUser = await prisma.user.findUnique({
       where: { email }
     })
 
     if (existingUser) {
       return NextResponse.json(
-        { success: false, error: 'Email already exists' },
+        { success: false, error: 'อีเมลนี้ถูกใช้งานแล้ว' },
+        { status: 409 }
+      )
+    }
+    // ตรวจสอบว่า user ซ้ำมั้ย
+    const existingUserByName = await prisma.user.findFirst({
+      where: { name }
+    })
+
+    if (existingUserByName) {
+      return NextResponse.json(
+        { success: false, error: 'ชื่อนี้ถูกใช้งานแล้ว' },
+        { status: 409 }
+      )
+    }
+
+    // ตรวจสอบว user และ email ซ้ำมั้ย
+    const existingUserByNameAndEmail = await prisma.user.findFirst({
+      where: { name, email }
+    })
+
+    if (existingUserByNameAndEmail) {
+      return NextResponse.json(
+        { success: false, error: 'ชื่อนี้และอีเมลนี้ถูกใช้งานแล้ว' },
         { status: 409 }
       )
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { User, ApiResponse } from '@/types/user'
+import Link from 'next/link'
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -31,10 +32,10 @@ export default function UsersPage() {
       if (result.success && result.data) {
         setUsers(result.data)
       } else {
-        setError(result.error || 'Failed to fetch users')
+        setError(result.error || 'ไม่สามารถดึงข้อมูลผู้ใช้ได้')
       }
     } catch (err) {
-      setError('Failed to fetch users')
+      setError('ไม่สามารถดึงข้อมูลผู้ใช้ได้')
       console.error(err)
     } finally {
       setLoading(false)
@@ -56,23 +57,24 @@ export default function UsersPage() {
     e.preventDefault()
     try {
       const response = await fetch('/api/users', {
+        // POST - ส่งข้อมูลเพื่อสร้าง user ใหม่
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
-
+      // POST - รับผลลัพธ์การสร้าง user ใหม่
       const result: ApiResponse<User> = await response.json()
-
+      // ตรวจสอบผลลัพธ์ว่าสำเร็จหรือไม่ ถ้าไม่สำเร็จให้แสดงข้อความผิดพลาด
       if (result.success) {
-        alert('User created successfully!')
+        alert('สร้างผู้ใช้สำเร็จ!')
         setShowForm(false)
         setFormData({ email: '', name: '', password: '', role: 'USER' })
-        fetchUsers()
+        fetchUsers(search)
       } else {
-        alert(result.error || 'Failed to create user')
+        alert(result.error || 'ไม่สามารถสร้างผู้ใช้ได้')
       }
     } catch (err) {
-      alert('Failed to create user')
+      alert('ไม่สามารถสร้างผู้ใช้ได้')
       console.error(err)
     }
   }
@@ -81,24 +83,24 @@ export default function UsersPage() {
   const handleUpdate = async (id: string) => {
     const name = prompt('Enter new name:')
     if (!name) return
-
+    // PUT - ส่งข้อมูลเพื่ออัพเดท user
     try {
       const response = await fetch(`/api/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name })
       })
-
+      // PUT - รับผลลัพธ์การอัพเดท user
       const result: ApiResponse<User> = await response.json()
-
+      // ตรวจสอบผลลัพธ์ว่าสำเร็จหรือไม่ ถ้าไม่สำเร็จให้แสดงข้อความผิดพลาด
       if (result.success) {
-        alert('User updated successfully!')
-        fetchUsers()
+        alert('อัพเดทผู้ใช้สำเร็จ!')
+        fetchUsers(search)
       } else {
-        alert(result.error || 'Failed to update user')
+        alert(result.error || 'ไม่สามารถอัพเดทผู้ใช้ได้')
       }
     } catch (err) {
-      alert('Failed to update user')
+      alert('ไม่สามารถอัพเดทผู้ใช้ได้')
       console.error(err)
     }
   }
@@ -106,26 +108,26 @@ export default function UsersPage() {
   // ลบ user
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this user?')) return
-
+    // DELETE - ส่งคำขอลบ user
     try {
       const response = await fetch(`/api/users/${id}`, {
         method: 'DELETE'
       })
-
+      // DELETE - รับผลลัพธ์การลบ user
       const result: ApiResponse<null> = await response.json()
-
+      // ตรวจสอบผลลัพธ์ว่าสำเร็จหรือไม่ ถ้าไม่สำเร็จให้แสดงข้อความผิดพลาด
       if (result.success) {
-        alert('User deleted successfully!')
-        fetchUsers()
+        alert('ลบผู้ใช้สำเร็จ!')
+        fetchUsers(search)
       } else {
-        alert(result.error || 'Failed to delete user')
+        alert(result.error || 'ไม่สามารถลบผู้ใช้ได้')
       }
     } catch (err) {
-      alert('Failed to delete user')
+      alert('ไม่สามารถลบผู้ใช้ได้')
       console.error(err)
     }
   }
-
+  // แสดงผลหน้า UI Loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -136,9 +138,12 @@ export default function UsersPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
+      <div className="flex flex-col mb-8">
         <h1 className="text-4xl font-bold mb-2">Users Management</h1>
         <p className="text-gray-600">Manage your users - CRUD operations demo</p>
+        <Link href="/" className="text-blue-500 underline">
+          กลับหน้าหลัก
+        </Link>
       </div>
 
       {error && (
