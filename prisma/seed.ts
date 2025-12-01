@@ -9,34 +9,65 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   console.log('🌱 Start seeding...')
 
-  // ลบข้อมูลเก่า (ถ้ามี)
+  // ลบข้อมูลเก่า (ถ้ามี) - ต้องลบ Post ก่อนเพราะมี relation กับ User
+  await prisma.post.deleteMany()
   await prisma.user.deleteMany()
 
-  // สร้าง Users ทดสอบ
-  const users = await prisma.user.createMany({
+  // สร้าง users ทดสอบ
+  const john = await prisma.user.create({
+    data: {
+      email: 'john@example.com',
+      name: 'John Doe',
+      password: 'hashed_password_123', // ในจริงต้อง hash
+      role: 'ADMIN'
+    }
+  })
+
+  const jane = await prisma.user.create({
+    data: {
+      email: 'jane@example.com',
+      name: 'Jane Smith',
+      password: 'hashed_password_456',
+      role: 'USER'
+    }
+  })
+
+  const bob = await prisma.user.create({
+    data: {
+      email: 'bob@example.com',
+      name: 'Bob Johnson',
+      password: 'hashed_password_789',
+      role: 'USER'
+    }
+  })
+
+  console.log(`✅ Created 3 users.`)
+
+  // สร้าง posts ทดสอบ
+  const posts = await prisma.post.createMany({
     data: [
       {
-        email: 'john@example.com',
-        name: 'John Doe',
-        password: 'hashed_password_123', // ในจริงต้อง hash
-        role: 'ADMIN'
+        title: 'First Post by John',
+        content: 'This is the content of the first post.',
+        published: true,
+        authorId: john.id
       },
       {
-        email: 'jane@example.com',
-        name: 'Jane Smith',
-        password: 'hashed_password_456',
-        role: 'USER'
+        title: 'Second Post by Jane',
+        content: 'This is the content of the second post.',
+        published: true,
+        authorId: jane.id
       },
       {
-        email: 'bob@example.com',
-        name: 'Bob Johnson',
-        password: 'hashed_password_789',
-        role: 'USER'
+        title: 'Draft Post by Bob',
+        content: 'This is a draft post.',
+        published: false,
+        authorId: bob.id
       }
     ]
   })
 
-  console.log(`✅ Created ${users.count} users`)
+  console.log(`✅ Created ${posts.count} posts.`)
 }
 
 main()

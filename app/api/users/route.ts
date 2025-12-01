@@ -16,13 +16,14 @@ export async function GET(request: Request) {
             ]
           }
         : {},
+        // การเลือกฟิลด์ที่ต้องการส่งกลับ
       select: {
         id: true,
         email: true,
         name: true,
         role: true,
-        createdAt: true
-        // ไม่เอา password
+        createdAt: true,
+        password : true,
       },
       orderBy: {
         createdAt: 'desc'

@@ -5,13 +5,32 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
+// User โมเดลสำหรับเก็บข้อมูลผู้ใช้
 model User {
+  // Primary Key
   id        String   @id @default(cuid())
+  // Fields
   email     String   @unique
   name      String?
   password  String
   role      String   @default("USER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // ความสัมพันธ์กับ Post FK
+  posts     Post[]
+}
+// Post โมเดลสำหรับเก็บข้อมูลโพสต์
+model Post {
+  // Primary Key
+  id        String   @id @default(cuid())
+  // Fields
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // ความสัมพันธ์กับ User FK
+  // สร้างโดย User
+  author    User     @relation(fields: [authorId], references: [id])
 }

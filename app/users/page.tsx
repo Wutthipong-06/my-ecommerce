@@ -5,7 +5,9 @@ import type { User, ApiResponse } from '@/types/user'
 import Link from 'next/link'
 
 export default function UsersPage() {
+  // สถานะต่างๆ
   const [users, setUsers] = useState<User[]>([])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -25,8 +27,9 @@ export default function UsersPage() {
       const url = searchQuery
         ? `/api/users?search=${encodeURIComponent(searchQuery)}`
         : '/api/users'
-      
+      // GET - ดึงข้อมูลผู้ใช้จาก API
       const response = await fetch(url)
+      // GET - รับผลลัพธ์การดึงข้อมูลผู้ใช้
       const result: ApiResponse<User[]> = await response.json()
 
       if (result.success && result.data) {
@@ -82,11 +85,15 @@ export default function UsersPage() {
   // อัพเดท user
   const handleUpdate = async (id: string) => {
     const name = prompt('Enter new name:')
+    // ตรวจสอบถ้าไม่มีการกรอกชื่อใหม่ให้ยกเลิกการอัพเดท
     if (!name) return
     // PUT - ส่งข้อมูลเพื่ออัพเดท user
     try {
+      // PUT - ส่งข้อมูลเพื่ออัพเดท user
       const response = await fetch(`/api/users/${id}`, {
+        // PUT - ส่งข้อมูลเพื่ออัพเดท user
         method: 'PUT',
+        // PUT - กำหนด headers เป็น application/json
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name })
       })
@@ -107,10 +114,13 @@ export default function UsersPage() {
 
   // ลบ user
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return
+    // ยืนยันการลบ user
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้?')) return
     // DELETE - ส่งคำขอลบ user
     try {
+      // DELETE - ส่งคำขอลบ user
       const response = await fetch(`/api/users/${id}`, {
+        // DELETE - กำหนด method เป็น DELETE
         method: 'DELETE'
       })
       // DELETE - รับผลลัพธ์การลบ user
@@ -264,6 +274,9 @@ export default function UsersPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Password
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -310,7 +323,14 @@ export default function UsersPage() {
                       Delete
                     </button>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {user.password === undefined ? 'ไม่สามารถแสดงรหัสผ่านได้' : '***'
+                      }
+                      </div>
+                  </td>
                 </tr>
+                
               ))
             )}
           </tbody>
